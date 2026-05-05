@@ -1,3 +1,12 @@
+local version = "1.1" -- This must match the text in your GitHub 'version' file
+
+-- The link to your version file on GitHub
+local versionURL = "https://raw.githubusercontent.com/tesrtegfdregwfd/version/refs/heads/main/version"
+
+-- This is where your actual "cheat" code goes
+local function MyMainScript()
+    warn(">>> OnionHub Loaded!")
+    
 -- FlyOnion Hub - Refactored for Luau 200 upvalue/register limit
 -- Key: cat
 -- Delta Executor Compatible Version
@@ -2242,4 +2251,39 @@ if isKeySaved() then
     keyFrame.Visible  = false
     mainFrame.Visible = true
     tabs["Info"].button.MouseButton1Click:Fire()
+end
+    
+    print(">>> All features are active.")
+end
+
+-- 1. Check the version from GitHub
+local success, latestVersion = pcall(function()
+    return game:HttpGet(versionURL):gsub("%s+", "")
+end)
+
+if success and latestVersion == version then
+    -- Version matches! Run the script normally.
+    MyMainScript()
+else
+    -- 2. Version is wrong or GitHub is down
+    warn(">>> VERSION OUTDATED! Expected: " .. tostring(latestVersion) .. " | Got: " .. version)
+    
+    -- Create the "Outdated" GUI
+    local sg = Instance.new("ScreenGui", game.Players.LocalPlayer.PlayerGui)
+    local f = Instance.new("Frame", sg)
+    f.Size = UDim2.new(0, 250, 0, 100)
+    f.Position = UDim2.new(0.5, -125, 0.5, -50)
+    f.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+    
+    local t = Instance.new("TextLabel", f)
+    t.Size = UDim2.new(1, 0, 1, 0)
+    t.Text = "OUTDATED VERSION! Loading anyway..."
+    t.TextColor3 = Color3.fromRGB(255, 255, 255)
+    t.BackgroundTransparency = 1
+    
+    task.wait(2)
+    sg:Destroy()
+    
+    -- Run the script anyway even if outdated
+    MyMainScript()
 end
