@@ -2,7 +2,7 @@
 -- Key: cat
 -- Delta Executor Compatible Version - FIXED
 -- Fixes: Register overflow, UpValue limits, customWait crash
-
+do
 print("===========================================")
 print("FlyOnion Hub - Starting...")
 print("Delta Executor Optimized - v1.1")
@@ -2275,3 +2275,4 @@ if isKeySaved() then
 end
 
 print("Roblox GUI Loaded Successfully!")
+end
