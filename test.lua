@@ -973,50 +973,65 @@ for i = 1, 30 do intervalSteps[i] = i end
 local currentIntervalIndex = 3 -- default 3s
 local autoEquipInterval = 3
 
-local function updateSlider(index)
-    index = math.clamp(index, 1, 30)
-    currentIntervalIndex = index
-    autoEquipInterval = intervalSteps[index]
-    intervalLabel.Text = "Equip Interval: " .. autoEquipInterval .. "s"
-    local pct = (index - 1) / 29
-    sliderFill.Size = UDim2.new(pct, 0, 1, 0)
-    sliderKnob.Position = UDim2.new(pct, -8, 0.5, -8)
+do
+    local sliderDragging = false
+
+    local function updateSlider(index)
+        index = math.clamp(index, 1, 30)
+        currentIntervalIndex = index
+        autoEquipInterval = intervalSteps[index]
+
+        intervalLabel.Text = "Equip Interval: " .. autoEquipInterval .. "s"
+
+        local pct = (index - 1) / 29
+        sliderFill.Size = UDim2.new(pct, 0, 1, 0)
+        sliderKnob.Position = UDim2.new(pct, -8, 0.5, -8)
+    end
+
+    updateSlider(3)
+
+    sliderKnob.InputBegan:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.MouseButton1
+        or inp.UserInputType == Enum.UserInputType.Touch then
+            sliderDragging = true
+        end
+    end)
+
+    sliderKnob.InputEnded:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.MouseButton1
+        or inp.UserInputType == Enum.UserInputType.Touch then
+            sliderDragging = false
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(inp)
+        if sliderDragging and (
+            inp.UserInputType == Enum.UserInputType.MouseMovement
+            or inp.UserInputType == Enum.UserInputType.Touch
+        ) then
+            local barAbsPos = sliderBar.AbsolutePosition.X
+            local barAbsSize = sliderBar.AbsoluteSize.X
+            local relX = math.clamp(inp.Position.X - barAbsPos, 0, barAbsSize)
+
+            local pct = relX / barAbsSize
+            local index = math.round(pct * 29) + 1
+            updateSlider(index)
+        end
+    end)
+
+    sliderBar.InputBegan:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.MouseButton1
+        or inp.UserInputType == Enum.UserInputType.Touch then
+            local barAbsPos = sliderBar.AbsolutePosition.X
+            local barAbsSize = sliderBar.AbsoluteSize.X
+            local relX = math.clamp(inp.Position.X - barAbsPos, 0, barAbsSize)
+
+            local pct = relX / barAbsSize
+            local index = math.round(pct * 29) + 1
+            updateSlider(index)
+        end
+    end)
 end
-
-updateSlider(3)
-
-local sliderDragging = false
-sliderKnob.InputBegan:Connect(function(inp)
-    if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
-        sliderDragging = true
-    end
-end)
-sliderKnob.InputEnded:Connect(function(inp)
-    if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
-        sliderDragging = false
-    end
-end)
-UserInputService.InputChanged:Connect(function(inp)
-    if sliderDragging and (inp.UserInputType == Enum.UserInputType.MouseMovement or inp.UserInputType == Enum.UserInputType.Touch) then
-        local barAbsPos = sliderBar.AbsolutePosition.X
-        local barAbsSize = sliderBar.AbsoluteSize.X
-        local relX = math.clamp(inp.Position.X - barAbsPos, 0, barAbsSize)
-        local pct = relX / barAbsSize
-        local index = math.round(pct * 29) + 1
-        updateSlider(index)
-    end
-end)
-sliderBar.InputBegan:Connect(function(inp)
-    if inp.UserInputType == Enum.UserInputType.MouseButton1 or inp.UserInputType == Enum.UserInputType.Touch then
-        local barAbsPos = sliderBar.AbsolutePosition.X
-        local barAbsSize = sliderBar.AbsoluteSize.X
-        local relX = math.clamp(inp.Position.X - barAbsPos, 0, barAbsSize)
-        local pct = relX / barAbsSize
-        local index = math.round(pct * 29) + 1
-        updateSlider(index)
-    end
-end)
-
 -- Auto Collect Money Toggle
 local autoCollectToggle = Instance.new("Frame")
 autoCollectToggle.Name = "AutoCollectToggle"
